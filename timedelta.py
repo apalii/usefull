@@ -38,3 +38,17 @@ if afd < today:
 time_to_afd = abs(afd - today)
 print time_to_afd.days, "days until next April Fools' Day!"
 
+-------------------------------------------------------------
+
+#!/usr/bin/python3
+import sys, os, crypt
+from datetime import date, timedelta
+now = date.today()
+end = now + timedelta(days=5)
+expire = end.isoformat()
+if not os.geteuid()==0:
+    sys.exit("Only root can create users")
+password = "Password1"
+encPassword = crypt.crypt(password,"aa")
+os.system("useradd -m -p "+encPassword+" -e "+expire+" user1")
+print("Done")
