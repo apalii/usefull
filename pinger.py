@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-''' Very simple pinger on Python  +  bash
+''' Very simple pinger written in Python  +  bash
 from day by day routine'''
 
 import ping, socket,time
@@ -21,3 +21,8 @@ do
     sudo python pinger.py
     sleep 5
 done
+
+#-------------------------------------------------------
+
+# $ pinger.sh >> pinger.log
+# $ pinger.sh | tee -a pinger.log 
