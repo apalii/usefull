@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-''' Very simple pinger written in Python  +  bash
-from day by day routine'''
+'''Very simple pinger written in Python  +  bash
+for day-to-day routine
+'''
 
 import ping, socket,time
 from datetime import datetime
@@ -16,10 +17,12 @@ except socket.error, e:
 #-------------------------------------------------------
 
 #!/bin/bash
-while [ True ]
-do
-    sudo python pinger.py
-    sleep 5
+
+COUNTER=0
+while [  $COUNTER -lt 6 ]; do
+python pinger.py
+let COUNTER=COUNTER+1 
+sleep 20m
 done
 
 #-------------------------------------------------------
