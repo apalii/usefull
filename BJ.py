@@ -44,12 +44,9 @@ class Deck(list):
     def __init__(self):
         super().__init__( card(r+1,s) for r in range(13) for s in (Club, Diamond, Heart, Spade) )
         random.shuffle(self)
-    def __str__(self):
-        for i in self:
-            return str(i)
         
 d = Deck()
 hand = [ d.pop(), d.pop() ]
-print(len(d))
+
 for i in hand:
     print(i)
