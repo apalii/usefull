@@ -29,12 +29,10 @@ class Watcher(object):
             page = urlopen(self.url)
             data = json.load(page)
             if 'error' in data:
-                print("\nIt seems that such id as :", self.vk_id, " doesn't exist!")
-                sys.exit(1)
+                sys.exit("\nIt seems that such id as :", self.vk_id, " doesn't exist!")
             for i in data['response']:
                 if 'deactivated' in i:
-                    print("\nIt seems that such id as :" + self.vk_id + " has been deleted")
-                    sys.exit(1)
+                    sys.exit("\nIt seems that such id as :" + self.vk_id + " has been deleted")
                 elif i['online'] == 1:
                     print(i['first_name'],i['last_name'] + '\tis ONLiNE\n')
                 else:
