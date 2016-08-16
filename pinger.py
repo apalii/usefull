@@ -4,7 +4,7 @@
 for day-to-day routine
 '''
 
-import ping, socket,time
+import ping, socket
 from datetime import datetime
 from datetime import date
 
