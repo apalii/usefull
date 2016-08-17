@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 """
 Log line example :
@@ -26,6 +26,10 @@ from calendar import monthrange
 
 
 def rand_date():
+    """
+    Returns random date(within current month) in unix time
+    :return: int
+    """
     now = datetime.datetime.now()
     month = now.month
     year = now.year
@@ -48,7 +52,7 @@ class LogFiller(object):
      sends lines to the logstash TCP listener
      """
 
-    def __init__(self, lines=1000, ip='192.168.87.191', port=5142, test_mode=False):
+    def __init__(self, lines=1000, ip='192.168.87.191', port=5142, debug=False):
         """
         Logstash config example :
         # cat /etc/logstash/conf.d/01-beaver_test.conf
@@ -63,7 +67,7 @@ class LogFiller(object):
         self.ip = ip
         self.port = port
         self.host = (self.ip, self.port)
-        self.test_mode = test_mode
+        self.debug = debug
 
     def create_tcp_connection_and_send(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -71,20 +75,20 @@ class LogFiller(object):
         try:
             sock.connect(self.host)
         except socket.timeout as err:
-            sock.shutdown(socket.SHUT_RD)
-            sys.exit("There is connection problem : {}".format(err))
+            sock.close()
+            err_msg = "There is connection problem : {}\nPlease check iptables rules or logstash conf".format(err)
+            sys.exit(err_msg)
 
         for i in xrange(1, self.number_of_lines + 1):
-            if self.test_mode:
-                sock.shutdown(socket.SHUT_RD)
-                print self.generate_line()
-            else:
-                sock.send(self.generate_line())
-        sock.shutdown(socket.SHUT_RD)
+            line_to_send = self.generate_line()
+            if self.debug:
+                print line_to_send
+            sock.send(line_to_send)
+        sock.close()
 
     @staticmethod
     def generate_line():
-        data_field = """data='AV - Alert - "1470314952" --> RID: "5502"; RL: "3"; RG: "pam,syslog,"; RC: "Login session closed."; USER: "None"; SRCIP: "None"; HOSTNAME: "VirtualUSMAllInOne"; LOCATION: "/var/log/auth.log"; EVENT: "[INIT]Aug  4 08:49:11 VirtualUSMAllInOne sudo: pam_unix(sudo:session): session closed for user root[END]"; '"""
+        data_field = """AV - Alert - "1470314952" --> RID: "5502"; RL: "3"; RG: "pam,syslog,"; RC: "Login session closed."; USER: "None"; SRCIP: "None"; HOSTNAME: "VirtualUSMAllInOne"; LOCATION: "/var/log/auth.log"; EVENT: "[INIT]Aug  4 08:49:11 VirtualUSMAllInOne sudo: pam_unix(sudo:session): session closed for user root[END]";"""
         line = "<entry id='2882' v='2' fdate='2016-08-04 12:49:12' date='{1}' plugin_id='{2}' " \
                "sensor='192.168.87.191' src_ip='{3}' dst_ip='{3}' src_port='0' dst_port='0' " \
                "tzone='-4.00' datalen='307' data='{0}' plugin_sid='5502' proto='6'  " \
@@ -94,11 +98,11 @@ class LogFiller(object):
                "username='root' userdata1='/var/log/auth.log' userdata2='Login session closed.' " \
                "userdata3='pam,syslog,' userdata4='none' idm_host_src='VirtualUSMAllInOne' " \
                "idm_host_dst='VirtualUSMAllInOne' idm_mac_src='00:0C:29:6A:10:93' idm_mac_dst='00:0C:29:6A:10:93' " \
-               "device='192.168.87.191'/>".format(
+               "device='192.168.87.191'/>\n".format(
             data_field, rand_date(), rand_plugin(), rand_ip()
         )
 
         return line
 
-test = LogFiller(lines=10, test_mode=True)
+test = LogFiller(lines=3, debug=True)
 test.create_tcp_connection_and_send()
