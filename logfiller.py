@@ -83,22 +83,26 @@ class LogFiller(object):
             sock.connect(self.host)
         except socket.timeout as err:
             sock.close()
-            err_msg = "Please check iptables rules or logstash conf: {}".format(err)
+            err_msg = "Please check iptables rules or logstash conf: {0}".format(err)
             sys.exit(err_msg)
         except socket.error as err:
             sock.close()
-            err_msg = "Please check iptables rules: {}".format(err)
+            err_msg = "Please check iptables rules: {0}".format(err)
             sys.exit(err_msg)
-
+        counter = 0
+        start = time.time()
         for i in xrange(1, self.number_of_lines + 1):
+            counter += 1
             line_to_send = self.generate_line()
-            if self.debug:
-                print line_to_send
+            if self.debug and counter % 500 == 0:
+                print "{0} messages in {1} seconds".format(counter, time.time() - start)
+                start = time.time()
             try:
                 sock.sendall(line_to_send)
             except socket.error as err:
-                print("Unable to send a msg : {}".format(err))
-            time.sleep(0.01)
+                print("Unable to send a msg : {0}".format(err))
+            # time.sleep(0.01)
+        print "\nTotal {0} seconds".format(start - time.time())
         sock.close()
 
     @staticmethod
@@ -117,6 +121,6 @@ class LogFiller(object):
 
         return line
 
-test = LogFiller(lines=100000, ip='192.168.100.243', debug=False)
-#test.through_tcp_socket()
-test.through_redis_connection()
+test = LogFiller(lines=10000, ip='192.168.100.243', debug=True)
+test.through_tcp_socket()
+#test.through_redis_connection()
